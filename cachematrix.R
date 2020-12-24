@@ -1,15 +1,41 @@
-## Put comments here that give an overall description of what your
-## functions do
 
-## Write a short comment describing this function
+## Inverse matrix computation cache mechanism 
+
+## returns an interface to interact with a matrix, 
+## caches the inverse and invalid the cache when the 
+## matrix changes.
 
 makeCacheMatrix <- function(x = matrix()) {
-
+  inner.matrix <- x 
+  cached.matrix.inverse <- NULL
+  getMatrix <- function () inner.matrix 
+  setMatrix <- function (new.matrix) {
+    cached.matrix.inverse <<- NULL
+    inner.matrix <- new.matrix 
+  }
+  getCachedInverse <- function () cached.matrix.inverse
+  setCachedInverse <- function (new.inverse) 
+    cached.matrix.inverse <<- new.inverse 
+  invisible(list(
+    getMatrix = getMatrix, 
+    setMatrix = setMatrix, 
+    getCachedInverse = getCachedInverse, 
+    setCachedInverse = setCachedInverse
+  ))
 }
 
-
-## Write a short comment describing this function
+## solve the inverse of a matrix. If the object has a valid inverse 
+## stored in the cache, skips the computation and returns the cached
+## inverse 
 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+  cached.inverse <- x$getCachedInverse()
+  if (!is.null(cached.inverse)) {
+    message("return cached data")
+    return (cached.inverse)
+  }
+  inner.matrix <- x$getMatrix()
+  cached.inverse <- solve(inner.matrix, ...)
+  x$setCachedInverse(cached.inverse)
+  cached.inverse
 }
